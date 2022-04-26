@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  dbMysql:
+    container_name: dbMysql
+    image: mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - ./dbMysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'mydb'
+      MYSQL_USER: 'soerjo'
+      MYSQL_PASSWORD: 'soerjo1234'
+      MYSQL_ROOT_PASSWORD: 'root1234'
