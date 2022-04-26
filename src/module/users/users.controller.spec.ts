@@ -1,30 +1,36 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+
+export type Moctype<T> = {
+  [P in keyof T]?: jest.Mock<any>;
+};
 
 describe('UsersController', () => {
   let controller: UsersController;
 
-  const mockUserService = {
-    create: jest.fn((dto) => {
-      return {
-        id: Date.toString(),
-        username: dto.username,
-        email: dto.email,
-      };
-    }),
-    update: jest.fn((id, dto) => {
-      return {
-        status: 200,
-        message: 'success',
-        data: {
-          email: dto.email,
-          username: dto.username,
-        },
-      };
-    }),
+  const mockUserService: Moctype<UsersService> = {
+    create: jest.fn((dto) => dto),
+    update: jest.fn((id, dto) => dto),
+    findOne: jest.fn((id: string) => ({} as User)),
+    findAll: jest.fn(() => [] as User[]),
+    remove: jest.fn((id: string) => true),
+  };
+
+  const id = 'number01';
+  const regist: CreateUserDto = {
+    email: 'yo@mail.com',
+    password: 'sebuahrahasia',
+    username: 'namaorang',
+  };
+
+  const update: UpdateUserDto = {
+    email: 'yo@mail.com',
+    password: 'sebuahrahasia',
+    username: 'orang',
   };
 
   beforeEach(async () => {
@@ -40,32 +46,25 @@ describe('UsersController', () => {
   });
 
   it('should be defined', () => {
-    const createDto: CreateUserDto = {
-      username: 'soerjo',
-      email: 'ryo@gmail.com',
-      password: 'soerjo',
-    };
-    expect(controller.create(createDto)).toEqual({
-      id: expect.any(String),
-      username: createDto.username,
-      email: createDto.email,
+    expect(controller).toBeDefined();
+  });
+
+  describe('endpoint users/create', () => {
+    it('should create user', () => {
+      controller.create(regist);
+      expect(controller.create(regist)).toEqual(regist);
     });
   });
 
   it('should update user', () => {
-    const id = 'number01';
-    const updateDto: UpdateUserDto = {
-      email: 'yo@mail.com',
-      password: 'sebuahrahasia',
-      username: 'namaorang',
-    };
-    expect(controller.update(id, updateDto)).toEqual({
-      status: expect.any(Number),
-      message: expect.any(String),
-      data: {
-        email: updateDto.email,
-        username: updateDto.username,
-      },
-    });
+    expect(controller.update(id, update)).toEqual(update);
+  });
+
+  it('should get user', () => {
+    expect(controller.findAll()).toEqual(expect.arrayContaining<User>([]));
+  });
+
+  it('should delete user', () => {
+    expect(controller.remove(id)).toEqual(true);
   });
 });

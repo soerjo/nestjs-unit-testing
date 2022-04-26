@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ResponseDto } from '../../common/dto/response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './users.repository';
 import { compareSync } from 'bcrypt';
-import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,36 +13,29 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const data = await this.userRepo.createUser(createUserDto);
-    return new ResponseDto(data);
+    return await this.userRepo.createUser(createUserDto);
   }
 
   async compare(login: Omit<CreateUserDto, 'username'>) {
     const data = await this.userRepo.findOne({ email: login.email });
-    if (data) return compareSync(login.password, data.password);
-    return false;
+    return compareSync(login.password, data.password);
   }
 
   async findAll() {
-    const data = await this.userRepo.findAll();
-    return new ResponseDto(data);
+    return await this.userRepo.findAll();
   }
 
   async findOne(id: string) {
-    const data = await this.userRepo.findOne({ id });
-    return new ResponseDto(data);
+    return await this.userRepo.findOne({ id });
   }
 
-  async update(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<{ status: number; message: string; data: User }> {
-    const data = await this.userRepo.updateUser(id, updateUserDto);
-    return new ResponseDto(data);
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    return await this.userRepo.updateUser(id, updateUserDto);
   }
 
   async remove(id: string) {
-    const data = await this.userRepo.removeUser(id);
-    return new ResponseDto(data);
+    const removeUser = await this.userRepo.removeUser(id);
+    if (removeUser) return true;
+    return false;
   }
 }
